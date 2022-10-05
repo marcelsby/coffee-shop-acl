@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: coffee-shop
+      POSTGRES_DB: coffee_shop
     ports:
       - "5432:5432"
     volumes:
