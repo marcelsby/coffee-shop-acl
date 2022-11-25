@@ -24,7 +24,7 @@ public class CoffeeServiceImpl implements CoffeeService {
   @Override
   public void update(UUID coffeeId, Coffee updatedCoffee) {
     Coffee coffeeToUpdate = coffeeRepository.findById(coffeeId)
-        .orElseThrow(EntityNotFoundException::new);
+            .orElseThrow(EntityNotFoundException::new);
 
     coffeeToUpdate.setName(updatedCoffee.getName());
     coffeeToUpdate.setDescription(updatedCoffee.getDescription());
@@ -41,7 +41,7 @@ public class CoffeeServiceImpl implements CoffeeService {
   @Override
   public Coffee find(UUID coffeeId) {
     return coffeeRepository.findById(coffeeId)
-        .orElseThrow(EntityNotFoundException::new);
+            .orElseThrow(EntityNotFoundException::new);
   }
 
   @Override
