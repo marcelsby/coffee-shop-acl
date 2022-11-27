@@ -26,6 +26,8 @@ public interface CoffeeService {
 
   /**
    * Lista todos os cafés cadastrados.
+   *
+   * @return a lista dos cafés cadastrados.
    */
   List<Coffee> list();
 
@@ -33,6 +35,7 @@ public interface CoffeeService {
    * Busca e retorna um café específico.
    *
    * @param coffeeId o id do café que será buscado.
+   * @return o café que foi buscado ou EntityNotFoundException.
    */
   Coffee find(UUID coffeeId);
 

@@ -1,4 +1,4 @@
-package com.marcelsby.coffeeshopacl.api.model;
+package com.marcelsby.coffeeshopacl.api.model.input;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 @Data
-public class CoffeeInputDTO {
+public class CoffeeDTO {
 
   @NotNull
   @NotBlank

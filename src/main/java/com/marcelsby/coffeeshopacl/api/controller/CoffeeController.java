@@ -1,6 +1,6 @@
 package com.marcelsby.coffeeshopacl.api.controller;
 
-import com.marcelsby.coffeeshopacl.api.model.CoffeeInputDTO;
+import com.marcelsby.coffeeshopacl.api.model.input.CoffeeDTO;
 import com.marcelsby.coffeeshopacl.domain.model.Coffee;
 import com.marcelsby.coffeeshopacl.domain.service.CoffeeService;
 import lombok.AllArgsConstructor;
@@ -30,13 +30,13 @@ public class CoffeeController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(@Valid @RequestBody CoffeeInputDTO newCoffee) {
+  public void create(@Valid @RequestBody CoffeeDTO newCoffee) {
     coffeeService.create(modelMapper.map(newCoffee, Coffee.class));
   }
 
   @PutMapping("{coffeeId}")
   public void update(@PathVariable UUID coffeeId,
-                     @Valid @RequestBody CoffeeInputDTO updatedCoffee) {
+                     @Valid @RequestBody CoffeeDTO updatedCoffee) {
     coffeeService.update(coffeeId, modelMapper.map(updatedCoffee, Coffee.class));
   }
 
