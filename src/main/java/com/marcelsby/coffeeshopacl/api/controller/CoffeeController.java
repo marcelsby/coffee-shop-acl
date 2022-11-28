@@ -51,6 +51,7 @@ public class CoffeeController {
   }
 
   @DeleteMapping("{coffeeId}")
+  /* TODO: Excluir essa rota para não permitir a exclusão de cafés */
   public void delete(@PathVariable UUID coffeeId) {
     coffeeService.delete(coffeeId);
   }

@@ -1,0 +1,47 @@
+package com.marcelsby.coffeeshopacl.exception.handler;
+
+import com.marcelsby.coffeeshopacl.exception.DomainException;
+import com.marcelsby.coffeeshopacl.exception.EmptySearchResultException;
+import com.marcelsby.coffeeshopacl.exception.RecordNotFoundException;
+import com.marcelsby.coffeeshopacl.exception.handler.model.CommonExceptionHttpBody;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
+
+@RestControllerAdvice
+public class GlobalApiExceptionHandler {
+
+  private static final String UNEXPECTED_ERROR = "Exception.unexpected";
+  private final MessageSource messageSource;
+
+  public GlobalApiExceptionHandler(MessageSource messageSource) {
+    this.messageSource = messageSource;
+  }
+
+  @ExceptionHandler(EmptySearchResultException.class)
+  public ResponseEntity<Void> handleEmptySearchResult() {
+    return ResponseEntity.noContent().build();
+  }
+
+  @ExceptionHandler(RecordNotFoundException.class)
+  public ResponseEntity<CommonExceptionHttpBody> handleRecordNotFound(RecordNotFoundException exception, HttpServletRequest request) {
+    String exceptionMessage = messageSource
+            .getMessage(exception.getMessage(), exception.getArgs(), Locale.getDefault());
+
+    return new ResponseEntity<>(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.NOT_FOUND),
+            HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(DomainException.class)
+  public ResponseEntity<CommonExceptionHttpBody> handleDomainException(DomainException exception, HttpServletRequest request) {
+    String exceptionMessage = messageSource.getMessage(exception.getMessage(), null, Locale.getDefault());
+
+    return new ResponseEntity<>(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST),
+            HttpStatus.BAD_REQUEST);
+  }
+}

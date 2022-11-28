@@ -3,10 +3,11 @@ package com.marcelsby.coffeeshopacl.domain.service.impl;
 import com.marcelsby.coffeeshopacl.domain.model.Coffee;
 import com.marcelsby.coffeeshopacl.domain.repository.CoffeeRepository;
 import com.marcelsby.coffeeshopacl.domain.service.CoffeeService;
+import com.marcelsby.coffeeshopacl.exception.EmptySearchResultException;
+import com.marcelsby.coffeeshopacl.exception.RecordNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,8 +24,7 @@ public class CoffeeServiceImpl implements CoffeeService {
 
   @Override
   public void update(UUID coffeeId, Coffee updatedCoffee) {
-    Coffee coffeeToUpdate = coffeeRepository.findById(coffeeId)
-            .orElseThrow(EntityNotFoundException::new);
+    Coffee coffeeToUpdate = find(coffeeId);
 
     coffeeToUpdate.setName(updatedCoffee.getName());
     coffeeToUpdate.setDescription(updatedCoffee.getDescription());
@@ -35,13 +35,19 @@ public class CoffeeServiceImpl implements CoffeeService {
 
   @Override
   public List<Coffee> list() {
-    return coffeeRepository.findAll();
+    List<Coffee> searchResult = coffeeRepository.findAll();
+
+    if (searchResult.isEmpty()) {
+      throw new EmptySearchResultException();
+    }
+
+    return searchResult;
   }
 
   @Override
   public Coffee find(UUID coffeeId) {
     return coffeeRepository.findById(coffeeId)
-            .orElseThrow(EntityNotFoundException::new);
+            .orElseThrow(() -> new RecordNotFoundException(Coffee.class));
   }
 
   @Override

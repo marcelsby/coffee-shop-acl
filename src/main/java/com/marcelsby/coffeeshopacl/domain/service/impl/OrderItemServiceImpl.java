@@ -8,10 +8,11 @@ import com.marcelsby.coffeeshopacl.domain.model.OrderItem;
 import com.marcelsby.coffeeshopacl.domain.repository.OrderItemRepository;
 import com.marcelsby.coffeeshopacl.domain.service.CoffeeService;
 import com.marcelsby.coffeeshopacl.domain.service.OrderItemService;
+import com.marcelsby.coffeeshopacl.exception.DomainException;
+import com.marcelsby.coffeeshopacl.exception.RecordNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -23,6 +24,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 
   @Override
   public void add(Order order, OrderItemDTO newItemDTO) {
+    if (isCoffeeAlreadyRegisteredInOrder(newItemDTO.getCoffeeId(), order.getId())) {
+      throw new DomainException("Exception.coffeeAlreadyRegisteredInOrder");
+    }
+
     Coffee coffeeToBeAdded = coffeeService.find(newItemDTO.getCoffeeId());
 
     OrderItem itemToBeCreated = new OrderItem();
@@ -45,11 +50,17 @@ public class OrderItemServiceImpl implements OrderItemService {
 
   @Override
   public void delete(UUID itemId) {
-    orderItemRepository.deleteById(itemId);
+    OrderItem itemToBeDeleted = find(itemId);
+
+    orderItemRepository.delete(itemToBeDeleted);
   }
 
   private OrderItem find(UUID orderItemId) {
     return orderItemRepository.findById(orderItemId)
-            .orElseThrow(EntityNotFoundException::new);
+            .orElseThrow(() -> new RecordNotFoundException(OrderItem.class));
+  }
+
+  private boolean isCoffeeAlreadyRegisteredInOrder(UUID coffeeId, UUID orderId) {
+    return orderItemRepository.existsByCoffeeIdAndOrderId(coffeeId, orderId);
   }
 }

@@ -6,10 +6,12 @@ import com.marcelsby.coffeeshopacl.domain.model.Order;
 import com.marcelsby.coffeeshopacl.domain.repository.OrderRepository;
 import com.marcelsby.coffeeshopacl.domain.service.OrderItemService;
 import com.marcelsby.coffeeshopacl.domain.service.OrderService;
+import com.marcelsby.coffeeshopacl.exception.DomainException;
+import com.marcelsby.coffeeshopacl.exception.EmptySearchResultException;
+import com.marcelsby.coffeeshopacl.exception.RecordNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+  private static final String ORDER_NOT_PENDING_MESSAGE = "Exception.orderNotPending";
   private OrderRepository orderRepository;
   private OrderItemService orderItemService;
 
@@ -30,13 +33,19 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public List<Order> list() {
-    return orderRepository.findAll();
+    List<Order> searchResult = orderRepository.findAll();
+
+    if (searchResult.isEmpty()) {
+      throw new EmptySearchResultException();
+    }
+
+    return searchResult;
   }
 
   @Override
   public Order find(UUID orderId) {
     return orderRepository.findById(orderId)
-            .orElseThrow(EntityNotFoundException::new);
+            .orElseThrow(() -> new RecordNotFoundException(Order.class));
   }
 
   @Override
@@ -45,11 +54,9 @@ public class OrderServiceImpl implements OrderService {
 
     switch (orderToBeCanceled.getStatus()) {
       case CANCELED:
-        /* TODO: exception avisando que o pedido não pode ser cancelado, pois já está cancelado  */
-        break;
+        throw new DomainException("Exception.orderCanceled");
       case FINISHED:
-        /* TODO: exception avisando que o pedido não pode ser cancelado, pois já está finalizado */
-        break;
+        throw new DomainException("Exception.orderFinished");
       default:
         orderToBeCanceled.setStatus(Order.Status.CANCELED);
         orderRepository.save(orderToBeCanceled);
@@ -62,14 +69,11 @@ public class OrderServiceImpl implements OrderService {
 
     switch (orderToBeSubmitted.getStatus()) {
       case CANCELED:
-        /* TODO: exception avisando que o pedido não pode ser enviado, pois está cancelado  */
-        break;
+        throw new DomainException("Exception.orderCanceled");
       case FINISHED:
-        /* TODO: exception avisando que o pedido não pode ser enviado, pois está finalizado */
-        break;
+        throw new DomainException("Exception.orderFinished");
       case PREPARING:
-        /* TODO: exception avisando que o pedido não pode ser enviado, pois está em preparo */
-        break;
+        throw new DomainException("Exception.orderBeingPrepared");
       default:
         orderToBeSubmitted.setStatus(Order.Status.PREPARING);
         orderRepository.save(orderToBeSubmitted);
@@ -81,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     Order orderToBeFinished = find(orderId);
 
     if (!orderToBeFinished.getStatus().equals(Order.Status.PREPARING)) {
-      /* TODO: exception falando que não é possível fechar o pedido, pois ele não está no estado de preparação */
+      throw new DomainException("Exception.orderNotInPreparation");
     } else {
       orderToBeFinished.setStatus(Order.Status.FINISHED);
       orderRepository.save(orderToBeFinished);
@@ -92,32 +96,36 @@ public class OrderServiceImpl implements OrderService {
   public void addItem(UUID orderId, OrderItemDTO newItemDTO) {
     Order orderToItemBeAdded = find(orderId);
 
-    if (!orderToItemBeAdded.getStatus().equals(Order.Status.PENDING)) {
+    if (isOrderPending(orderToItemBeAdded)) {
       orderItemService.add(orderToItemBeAdded, newItemDTO);
     } else {
-      /* TODO: exception falando que não é possível adicionar um item pois o pedido não está no estado de pendente */
+      throw new DomainException(ORDER_NOT_PENDING_MESSAGE);
     }
   }
 
   @Override
   public void updateItem(UUID orderId, UUID itemId, OrderItemUpdateDTO updatedItemDTO) {
-    if (isOrderPending(orderId)) {
+    Order orderToItemBeUpdated = find(orderId);
+
+    if (isOrderPending(orderToItemBeUpdated)) {
       orderItemService.update(itemId, updatedItemDTO);
     } else {
-      /* TODO: exception falando que não é possível adicionar um item pois o pedido não está no estado de pendente */
+      throw new DomainException(ORDER_NOT_PENDING_MESSAGE);
     }
   }
 
   @Override
   public void deleteItem(UUID orderId, UUID itemId) {
-    if (isOrderPending(orderId)) {
+    Order orderToItemBeDeleted = find(orderId);
+
+    if (isOrderPending(orderToItemBeDeleted)) {
       orderItemService.delete(itemId);
     } else {
-      /* TODO: exception falando que não é possível adicionar um item pois o pedido não está no estado de pendente */
+      throw new DomainException(ORDER_NOT_PENDING_MESSAGE);
     }
   }
 
-  private boolean isOrderPending(UUID orderId) {
-    return orderRepository.existsByIdAndStatus(orderId, Order.Status.PENDING);
+  private boolean isOrderPending(Order order) {
+    return order.getStatus().equals(Order.Status.PENDING);
   }
 }

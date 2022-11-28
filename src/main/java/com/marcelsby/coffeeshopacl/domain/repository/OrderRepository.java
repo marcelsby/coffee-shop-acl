@@ -8,6 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
-
-  boolean existsByIdAndStatus(UUID id, Order.Status status);
 }

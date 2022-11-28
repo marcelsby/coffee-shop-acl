@@ -34,7 +34,7 @@ public interface OrderService {
   /**
    * Adiciona um novo item ao pedido.
    *
-   * @param orderId id do pedido que o item será adicionado.
+   * @param orderId    id do pedido que o item será adicionado.
    * @param newItemDTO item que será adicionado.
    */
   void addItem(UUID orderId, OrderItemDTO newItemDTO);
@@ -42,8 +42,8 @@ public interface OrderService {
   /**
    * Atualiza um item do pedido.
    *
-   * @param orderId id do pedido que será realizada a ação.
-   * @param itemId id do item que será atualizado.
+   * @param orderId        id do pedido que será realizada a ação.
+   * @param itemId         id do item que será atualizado.
    * @param updatedItemDTO conteúdo do item atualizado
    */
   void updateItem(UUID orderId, UUID itemId, OrderItemUpdateDTO updatedItemDTO);
@@ -52,7 +52,7 @@ public interface OrderService {
    * Exclui um item do pedido.
    *
    * @param orderId id do pedido que será realizada a ação.
-   * @param itemId id do item que será excluído.
+   * @param itemId  id do item que será excluído.
    */
   void deleteItem(UUID orderId, UUID itemId);
 
