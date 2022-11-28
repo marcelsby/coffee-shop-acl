@@ -52,6 +52,11 @@ public class OrderController {
     orderService.submit(orderId);
   }
 
+  @PatchMapping("{orderId}/finish")
+  public void finish(@PathVariable UUID orderId) {
+    orderService.finish(orderId);
+  }
+
   @PatchMapping("{orderId}/items")
   public void addItem(@PathVariable UUID orderId, @Valid @RequestBody OrderItemDTO newItemDTO) {
     orderService.addItem(orderId, newItemDTO);
