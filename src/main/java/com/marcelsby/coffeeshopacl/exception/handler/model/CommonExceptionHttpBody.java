@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 @Getter
 public class CommonExceptionHttpBody {
 
+  private final LocalDateTime timestamp;
   private final Integer status;
   private final String error;
   private final String method;
   private final String path;
   private final String description;
-  private final LocalDateTime timestamp;
 
   public CommonExceptionHttpBody(String message, HttpServletRequest request, HttpStatus status) {
     this.status = status.value();
