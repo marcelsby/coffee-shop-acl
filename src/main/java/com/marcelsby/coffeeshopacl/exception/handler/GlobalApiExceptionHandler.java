@@ -45,8 +45,10 @@ public class GlobalApiExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<CommonExceptionHttpBody> handleUnexpectedException(HttpServletRequest request) {
+  public ResponseEntity<CommonExceptionHttpBody> handleUnexpectedException(Exception exception, HttpServletRequest request) {
     String exceptionMessage = messageSource.getMessage("Exception.unexpected", null, Locale.getDefault());
+
+    exception.printStackTrace();
 
     return ResponseEntity.internalServerError()
             .body(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST));
