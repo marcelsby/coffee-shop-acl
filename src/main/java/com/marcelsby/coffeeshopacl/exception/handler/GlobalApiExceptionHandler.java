@@ -4,11 +4,13 @@ import com.marcelsby.coffeeshopacl.exception.DomainException;
 import com.marcelsby.coffeeshopacl.exception.EmptySearchResultException;
 import com.marcelsby.coffeeshopacl.exception.RecordNotFoundException;
 import com.marcelsby.coffeeshopacl.exception.handler.model.CommonExceptionHttpBody;
+import com.marcelsby.coffeeshopacl.exception.handler.model.MethodArgumentTypeMismatchExceptionHttpBody;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
@@ -42,6 +44,15 @@ public class GlobalApiExceptionHandler {
 
     return ResponseEntity.badRequest()
             .body(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST));
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<MethodArgumentTypeMismatchExceptionHttpBody> handleMethodArgumentTypeMismatch(
+          MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
+    String exceptionMessage = messageSource.getMessage("Exception.methodArgumentTypeMismatch", null, Locale.getDefault());
+
+    return ResponseEntity.badRequest().body(
+            new MethodArgumentTypeMismatchExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST, exception));
   }
 
   @ExceptionHandler(Exception.class)
