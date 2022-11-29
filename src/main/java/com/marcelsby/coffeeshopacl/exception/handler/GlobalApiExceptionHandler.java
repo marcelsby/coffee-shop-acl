@@ -16,7 +16,6 @@ import java.util.Locale;
 @RestControllerAdvice
 public class GlobalApiExceptionHandler {
 
-  private static final String UNEXPECTED_ERROR = "Exception.unexpected";
   private final MessageSource messageSource;
 
   public GlobalApiExceptionHandler(MessageSource messageSource) {
@@ -41,7 +40,15 @@ public class GlobalApiExceptionHandler {
   public ResponseEntity<CommonExceptionHttpBody> handleDomainException(DomainException exception, HttpServletRequest request) {
     String exceptionMessage = messageSource.getMessage(exception.getMessage(), null, Locale.getDefault());
 
-    return new ResponseEntity<>(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST),
-            HttpStatus.BAD_REQUEST);
+    return ResponseEntity.badRequest()
+            .body(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST));
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<CommonExceptionHttpBody> handleUnexpectedException(HttpServletRequest request) {
+    String exceptionMessage = messageSource.getMessage("Exception.unexpected", null, Locale.getDefault());
+
+    return ResponseEntity.internalServerError()
+            .body(new CommonExceptionHttpBody(exceptionMessage, request, HttpStatus.BAD_REQUEST));
   }
 }
